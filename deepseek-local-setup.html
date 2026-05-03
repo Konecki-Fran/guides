@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Local DeepSeek-Coder-V2-Lite + Open WebUI on Ubuntu Studio</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#151823; --ink:#e6e8ef; --muted:#9aa3b2;
+    --accent:#7cc4ff; --ok:#7ee3a5; --warn:#ffcf6a; --err:#ff7a90;
+    --code:#0b0d13; --border:#232737; --link:#9ad0ff;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#fafbfd; --panel:#ffffff; --ink:#111522; --muted:#4a5266;
+      --accent:#0a66c2; --ok:#137a3a; --warn:#8a5a00; --err:#a11225;
+      --code:#f3f5f9; --border:#e2e6ef; --link:#0a66c2;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1180px;margin:0 auto;padding:24px}
+  nav{position:sticky;top:24px;align-self:start;background:var(--panel);border:1px solid var(--border);
+    border-radius:10px;padding:14px;max-height:calc(100vh - 48px);overflow:auto}
+  nav h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  nav ol{list-style:none;padding:0;margin:0;counter-reset:s}
+  nav ol>li{counter-increment:s;margin:2px 0}
+  nav ol>li>a::before{content:counter(s) ".  ";color:var(--muted)}
+  nav a{color:var(--ink);text-decoration:none;display:block;padding:5px 6px;border-radius:6px;font-size:13.5px}
+  nav a:hover{background:rgba(124,196,255,.08);color:var(--accent)}
+  main{min-width:0}
+  header.hero{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px}
+  header.hero h1{margin:0 0 8px;font-size:22px;letter-spacing:-.01em}
+  header.hero p{margin:4px 0;color:var(--muted)}
+  header.hero .stack{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .pill{display:inline-block;padding:3px 10px;border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--muted);background:var(--code)}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:0 0 18px}
+  section h2{margin:0 0 6px;font-size:18px;letter-spacing:-.01em}
+  section h2 .n{color:var(--muted);font-weight:500;margin-right:8px}
+  section h3{margin:18px 0 6px;font-size:15px;color:var(--ink)}
+  section h4{margin:12px 0 4px;font-size:13.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  p,li{color:var(--ink)}
+  .muted{color:var(--muted)}
+  a{color:var(--link)}
+  code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:13px}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;font-size:13px;line-height:1.5;margin:8px 0}
+  pre code{background:transparent;border:0;padding:0}
+  .callout{border-left:3px solid var(--accent);background:rgba(124,196,255,.06);padding:10px 14px;border-radius:6px;margin:10px 0}
+  .callout.warn{border-color:var(--warn);background:rgba(255,207,106,.08)}
+  .callout.err{border-color:var(--err);background:rgba(255,122,144,.08)}
+  .callout.ok{border-color:var(--ok);background:rgba(126,227,165,.08)}
+  .callout strong{display:inline-block;margin-right:6px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-weight:600;background:var(--code)}
+  tr:hover td{background:rgba(124,196,255,.04)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:900px){.wrap{grid-template-columns:1fr}nav{position:static;max-height:none}.grid2{grid-template-columns:1fr}}
+  footer{color:var(--muted);font-size:12.5px;padding:8px 4px 24px;text-align:center}
+  .check{color:var(--ok)} .cross{color:var(--err)}
+  details{margin:8px 0;background:var(--code);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+  summary{cursor:pointer;color:var(--accent)}
+  .kbd{border:1px solid var(--border);background:var(--code);padding:1px 6px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#intro">What you are building</a></li>
+    <li><a href="#assumptions">Assumptions and naming</a></li>
+    <li><a href="#hardware">Hardware sizing (VRAM table)</a></li>
+    <li><a href="#prep">System prep and updates</a></li>
+    <li><a href="#nvidia">NVIDIA driver install</a></li>
+    <li><a href="#docker">Docker and NVIDIA Container Toolkit</a></li>
+    <li><a href="#ollama">Install Ollama</a></li>
+    <li><a href="#ollama-net">Expose Ollama to Docker</a></li>
+    <li><a href="#pull">Pull the DeepSeek-Coder-V2-Lite model</a></li>
+    <li><a href="#smoke">Smoke test from the CLI</a></li>
+    <li><a href="#webui">Install Open WebUI</a></li>
+    <li><a href="#firstrun">First-run: admin + connect model</a></li>
+    <li><a href="#vscode">Optional: VS Code via Continue.dev</a></li>
+    <li><a href="#ops">Operations: start/stop, logs, updates</a></li>
+    <li><a href="#trouble">Troubleshooting</a></li>
+    <li><a href="#uninstall">Full uninstall</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Local DeepSeek-Coder-V2-Lite with Open WebUI on Ubuntu Studio</h1>
+  <p>End-to-end setup: NVIDIA drivers, Ollama, the DeepSeek coder model, Open WebUI in Docker, and an optional VS Code integration.</p>
+  <p class="muted">Target host: a clean Ubuntu Studio 24.04 install. Goal: a local coding LLM usable from a browser and from an editor, with the model served from your own machine.</p>
+  <div class="stack">
+    <span class="pill">Ubuntu Studio 24.04</span>
+    <span class="pill">NVIDIA GPU (recommended)</span>
+    <span class="pill">Ollama</span>
+    <span class="pill">Open WebUI</span>
+    <span class="pill">DeepSeek-Coder-V2-Lite</span>
+    <span class="pill">Continue.dev (optional)</span>
+  </div>
+</header>
+
+<section id="intro">
+  <h2><span class="n">1.</span>What you are building</h2>
+  <p>Three pieces working together:</p>
+  <ul>
+    <li><strong>Ollama</strong> - the inference engine. It loads the model into (V)RAM and exposes a local HTTP API on <code>127.0.0.1:11434</code>.</li>
+    <li><strong>DeepSeek-Coder-V2-Lite</strong> - the model. A 15.7B-parameter Mixture-of-Experts model with only ~2.4B active parameters per token, so it punches well above its VRAM footprint.</li>
+    <li><strong>Open WebUI</strong> - a browser front-end (ChatGPT-style) that talks to Ollama. Runs on <code>http://localhost:3000</code>.</li>
+  </ul>
+  <p>Flow at runtime: <em>browser -&gt; Open WebUI (port 3000) -&gt; Ollama API (port 11434) -&gt; GPU -&gt; response streams back</em>.</p>
+</section>
+
+<section id="assumptions">
+  <h2><span class="n">2.</span>Assumptions and naming</h2>
+  <div class="callout">
+    <strong>"Open Claw" =&gt; Open WebUI.</strong> There is no product called Open Claw; the standard browser UI for local LLMs with Ollama support is <a href="https://github.com/open-webui/open-webui">Open WebUI</a>. This guide targets that. If you meant something else, stop here and clarify.
+  </div>
+  <div class="callout warn">
+    <strong>Base vs Instruct.</strong> You asked for <code>DeepSeek-Coder-V2-Lite-Base</code>. The <em>Base</em> model is a raw pretrained model: best for <strong>code completion</strong> and fill-in-the-middle (what editors like Continue.dev consume). It is <em>not</em> chat-tuned, so it will behave poorly as a conversation partner in Open WebUI.
+    <br><br>
+    For the browser chat UI you almost certainly want <code>DeepSeek-Coder-V2-Lite-Instruct</code>. This guide installs <strong>both</strong>: the Base model for editor autocomplete, and the Instruct model for chat in Open WebUI. Pull whichever ones you want; they share weights internally but are distinct Ollama tags.
+  </div>
+  <p>Everything below assumes <code>sudo</code> access, a working internet connection, and that commands run in a terminal (<span class="kbd">Ctrl</span>+<span class="kbd">Alt</span>+<span class="kbd">T</span>).</p>
+</section>
+
+<section id="hardware">
+  <h2><span class="n">3.</span>Hardware sizing and quantization</h2>
+  <p>DeepSeek-Coder-V2-Lite is a 15.7B-parameter MoE model. Pick the quantization that fits your GPU. Quality drops as you go smaller; <code>Q4_K_M</code> is the usual sweet spot.</p>
+  <table>
+    <thead>
+      <tr><th>Ollama tag</th><th>File size</th><th>Recommended VRAM</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>deepseek-coder-v2:16b-lite-base-q2_K</code></td><td>6.4 GB</td><td>8 GB</td><td>Lowest quality, runs on most modern GPUs</td></tr>
+      <tr><td><code>deepseek-coder-v2:16b-lite-base-q4_K_M</code></td><td>10 GB</td><td>12 GB</td><td><strong>Recommended default.</strong> Good quality/size balance</td></tr>
+      <tr><td><code>deepseek-coder-v2:16b-lite-base-q5_K_M</code></td><td>12 GB</td><td>16 GB</td><td>Noticeably sharper than Q4 for code</td></tr>
+      <tr><td><code>deepseek-coder-v2:16b-lite-base-q6_K</code></td><td>14 GB</td><td>16-20 GB</td><td>Near-lossless</td></tr>
+      <tr><td><code>deepseek-coder-v2:16b-lite-base-q8_0</code></td><td>17 GB</td><td>24 GB</td><td>Fits on 3090/4090. High quality.</td></tr>
+      <tr><td><code>deepseek-coder-v2:16b-lite-base-fp16</code></td><td>31 GB</td><td>40 GB+</td><td>A100 40GB / A6000 48GB territory</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>No GPU?</strong> Ollama will run on CPU with system RAM. Target at least <strong>16 GB RAM free</strong> for Q4, 24 GB for Q8. Expect 3-10 tokens/sec rather than 40-80 tokens/sec. It will still work.
+  </div>
+  <p>Replace <code>-base-</code> with <code>-instruct-</code> in any tag above to get the chat variant. Example: <code>deepseek-coder-v2:16b-lite-instruct-q4_K_M</code>.</p>
+</section>
+
+<section id="prep">
+  <h2><span class="n">4.</span>System prep and updates</h2>
+  <p>Start from a clean Ubuntu Studio desktop session. Open a terminal.</p>
+  <pre><code>sudo apt update
+sudo apt upgrade -y
+sudo apt install -y curl wget ca-certificates gnupg lsb-release software-properties-common build-essential git
+sudo reboot</code></pre>
+  <p>After reboot, confirm kernel and distro:</p>
+  <pre><code>uname -r
+lsb_release -a</code></pre>
+  <p>Ubuntu Studio 24.04 ships with kernel 6.8+ which is fine for current NVIDIA drivers.</p>
+</section>
+
+<section id="nvidia">
+  <h2><span class="n">5.</span>NVIDIA driver install</h2>
+  <p class="muted">Skip this section if you have no NVIDIA GPU (AMD users: install ROCm 7 instead; CPU-only users: jump to step 7).</p>
+
+  <h3>5.1 Check what's detected</h3>
+  <pre><code>lspci | grep -i nvidia
+ubuntu-drivers devices</code></pre>
+  <p>The second command lists recommended drivers. You want the line marked <code>recommended</code>.</p>
+
+  <h3>5.2 Install the recommended driver</h3>
+  <pre><code>sudo ubuntu-drivers autoinstall
+sudo reboot</code></pre>
+  <div class="callout warn">
+    <strong>Secure Boot.</strong> If Secure Boot is enabled, the installer will prompt you to set a one-time MOK password. After the reboot you will see a blue MOK Manager screen: select <em>Enroll MOK -&gt; Continue -&gt; Yes</em>, enter the password you chose, then reboot. If you skip this, the NVIDIA kernel module will not load.
+  </div>
+
+  <h3>5.3 Verify</h3>
+  <pre><code>nvidia-smi</code></pre>
+  <p>You should see your GPU, driver version, and CUDA runtime version. If you see <code>command not found</code> or <code>NVIDIA-SMI has failed</code>, see <a href="#trouble">Troubleshooting</a>.</p>
+  <div class="callout ok">
+    <strong>You do not need to install the CUDA Toolkit.</strong> Ollama ships its own CUDA runtime. Only the NVIDIA <em>driver</em> on the host is required.
+  </div>
+</section>
+
+<section id="docker">
+  <h2><span class="n">6.</span>Docker and NVIDIA Container Toolkit</h2>
+  <p>Open WebUI is easiest to run in Docker. If you skipped GPU, install only Docker and skip the Container Toolkit subsection.</p>
+
+  <h3>6.1 Install Docker Engine</h3>
+  <pre><code>sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release; echo "$VERSION_CODENAME") stable" \
+| sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</code></pre>
+
+  <h3>6.2 Let your user run Docker without sudo</h3>
+  <pre><code>sudo usermod -aG docker $USER
+newgrp docker
+docker run --rm hello-world</code></pre>
+  <p>The last command should print a welcome message. If it does, Docker works.</p>
+
+  <h3>6.3 Install the NVIDIA Container Toolkit (GPU users)</h3>
+  <p>This is what lets Docker containers see your GPU.</p>
+  <pre><code>curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+  sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt update
+sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker</code></pre>
+  <p>Verify GPU visibility from inside a container:</p>
+  <pre><code>docker run --rm --gpus all nvidia/cuda:12.4.0-base-ubuntu22.04 nvidia-smi</code></pre>
+  <p>If <code>nvidia-smi</code> output appears from inside the container, GPU passthrough works.</p>
+</section>
+
+<section id="ollama">
+  <h2><span class="n">7.</span>Install Ollama</h2>
+  <p>This runs Ollama directly on the host (not in Docker). That keeps GPU access simple and lets the editor integration talk to it on <code>127.0.0.1</code>.</p>
+  <pre><code>curl -fsSL https://ollama.com/install.sh | sh</code></pre>
+  <p>The installer drops a <code>systemd</code> service. Confirm:</p>
+  <pre><code>systemctl status ollama --no-pager
+ollama --version</code></pre>
+  <p>If the service is running, move on.</p>
+</section>
+
+<section id="ollama-net">
+  <h2><span class="n">8.</span>Expose Ollama to Docker</h2>
+  <p>By default Ollama binds to <code>127.0.0.1:11434</code>. The Open WebUI container cannot reach the host's <code>127.0.0.1</code>, so we do one of two things. Option A is cleaner and is what this guide uses.</p>
+
+  <h3>Option A (recommended): keep Ollama on 127.0.0.1, let Docker resolve the host</h3>
+  <p>No Ollama config change needed. In the <code>docker run</code> command for Open WebUI we pass <code>--add-host=host.docker.internal:host-gateway</code> and point the UI at <code>http://host.docker.internal:11434</code>. This stays off your LAN and keeps Ollama local-only.</p>
+
+  <h3>Option B: bind Ollama on all interfaces</h3>
+  <p>Use this only if you also want other machines on your network to hit Ollama. It opens port 11434 to your LAN.</p>
+  <pre><code>sudo systemctl edit ollama</code></pre>
+  <p>Paste:</p>
+  <pre><code>[Service]
+Environment="OLLAMA_HOST=0.0.0.0:11434"</code></pre>
+  <p>Save and exit, then:</p>
+  <pre><code>sudo systemctl daemon-reload
+sudo systemctl restart ollama
+curl http://localhost:11434/api/tags</code></pre>
+  <div class="callout warn">
+    <strong>Firewall reminder.</strong> If you take Option B on a laptop, run <code>sudo ufw deny 11434</code> to block it at the firewall unless you actually want external access.
+  </div>
+</section>
+
+<section id="pull">
+  <h2><span class="n">9.</span>Pull the DeepSeek-Coder-V2-Lite model</h2>
+  <p>Choose tags based on <a href="#hardware">section 3</a>. This pulls the <strong>Base</strong> variant (for completion) and the <strong>Instruct</strong> variant (for chat). Skip whichever you do not need.</p>
+  <pre><code># Base: for editor autocomplete / fill-in-the-middle
+ollama pull deepseek-coder-v2:16b-lite-base-q4_K_M
+
+# Instruct: for chatting in Open WebUI
+ollama pull deepseek-coder-v2:16b-lite-instruct-q4_K_M</code></pre>
+  <p>Confirm they downloaded:</p>
+  <pre><code>ollama list</code></pre>
+  <div class="callout">
+    <strong>Storage.</strong> Each tag is ~10 GB at Q4_K_M. Ollama stores models in <code>/usr/share/ollama/.ollama/models</code>. If your root partition is small, move the store before pulling by setting <code>OLLAMA_MODELS</code> in the systemd override (<code>sudo systemctl edit ollama</code>).
+  </div>
+</section>
+
+<section id="smoke">
+  <h2><span class="n">10.</span>Smoke test from the CLI</h2>
+  <p>Chat test (uses the Instruct variant):</p>
+  <pre><code>ollama run deepseek-coder-v2:16b-lite-instruct-q4_K_M "Write a Python function that returns the nth Fibonacci number iteratively."</code></pre>
+  <p>Completion test (uses the Base variant; expect raw continuation, not a conversation):</p>
+  <pre><code>ollama run deepseek-coder-v2:16b-lite-base-q4_K_M "def quicksort(arr):"</code></pre>
+  <p>While a generation is running, open a second terminal and run <code>nvidia-smi -l 1</code>. You should see the <code>ollama</code> process using GPU memory. If VRAM usage stays at zero, the GPU is not being used; check <a href="#trouble">Troubleshooting</a>.</p>
+  <p>Exit the interactive Ollama prompt with <code>/bye</code>.</p>
+</section>
+
+<section id="webui">
+  <h2><span class="n">11.</span>Install Open WebUI</h2>
+  <p>Single command, using Docker:</p>
+  <pre><code>docker run -d \
+  --name open-webui \
+  --restart always \
+  -p 3000:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -v open-webui:/app/backend/data \
+  ghcr.io/open-webui/open-webui:main</code></pre>
+  <p>Check it's up:</p>
+  <pre><code>docker ps
+docker logs -f open-webui</code></pre>
+  <p>When the logs show <code>Application startup complete</code>, open your browser at:</p>
+  <pre><code>http://localhost:3000</code></pre>
+  <div class="callout">
+    <strong>Why not the all-in-one image?</strong> The <code>:ollama</code> bundled image runs Ollama inside the same container. That works, but keeping Ollama on the host makes it reachable from VS Code, other tools, and gives you one place to manage models.
+  </div>
+</section>
+
+<section id="firstrun">
+  <h2><span class="n">12.</span>First run: admin account and model selection</h2>
+  <ol>
+    <li>The first account you create becomes the <strong>admin</strong>. Sign up with any email and password (data stays on your machine).</li>
+    <li>Top-left, click the model dropdown. You should see both <code>deepseek-coder-v2:16b-lite-instruct-q4_K_M</code> and <code>...-base-q4_K_M</code>. If not, see the note below.</li>
+    <li>Select the <strong>Instruct</strong> tag for chat. Send a test message.</li>
+  </ol>
+  <p>If the dropdown is empty: <em>Settings -&gt; Admin Settings -&gt; Connections -&gt; Ollama API</em>. Confirm the URL is <code>http://host.docker.internal:11434</code>. Click the refresh icon.</p>
+  <div class="callout ok">
+    <strong>Done.</strong> You now have a browser-accessible local coding LLM. Bookmark <code>http://localhost:3000</code>.
+  </div>
+</section>
+
+<section id="vscode">
+  <h2><span class="n">13.</span>Optional: VS Code via Continue.dev</h2>
+  <p>This plugs the <em>Base</em> model into your editor for tab-autocomplete, and the <em>Instruct</em> model for the chat sidebar.</p>
+  <ol>
+    <li>Install VS Code (<a href="https://code.visualstudio.com/download">.deb package</a>) or the <code>code</code> snap.</li>
+    <li>In VS Code, install the <strong>Continue</strong> extension from the marketplace.</li>
+    <li>Open the Continue sidebar, click the gear icon, choose <em>Open config file</em>. This opens <code>~/.continue/config.json</code>.</li>
+  </ol>
+  <p>Replace the <code>models</code> and <code>tabAutocompleteModel</code> sections with:</p>
+  <pre><code>{
+  "models": [
+    {
+      "title": "DeepSeek Coder V2 (chat)",
+      "provider": "ollama",
+      "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+      "apiBase": "http://127.0.0.1:11434"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "DeepSeek Coder V2 (autocomplete)",
+    "provider": "ollama",
+    "model": "deepseek-coder-v2:16b-lite-base-q4_K_M",
+    "apiBase": "http://127.0.0.1:11434"
+  },
+  "allowAnonymousTelemetry": false
+}</code></pre>
+  <p>Save, restart VS Code. Start typing code - ghost-text completions should appear. Open the Continue sidebar to chat.</p>
+</section>
+
+<section id="ops">
+  <h2><span class="n">14.</span>Operations cheatsheet</h2>
+  <div class="grid2">
+    <div>
+      <h4>Ollama</h4>
+      <pre><code>sudo systemctl status ollama
+sudo systemctl restart ollama
+journalctl -u ollama -f
+ollama list
+ollama ps                # running models
+ollama rm &lt;tag&gt;          # delete a model
+ollama pull &lt;tag&gt;        # update/get</code></pre>
+    </div>
+    <div>
+      <h4>Open WebUI</h4>
+      <pre><code>docker ps
+docker logs -f open-webui
+docker restart open-webui
+docker stop open-webui
+# Update to latest:
+docker pull ghcr.io/open-webui/open-webui:main
+docker rm -f open-webui
+# then re-run the docker run command from section 11</code></pre>
+    </div>
+  </div>
+  <p>Models live in <code>/usr/share/ollama/.ollama/models</code>. Open WebUI data (chats, accounts) lives in the Docker volume <code>open-webui</code> - confirm with <code>docker volume inspect open-webui</code>. Back up that volume if you care about chat history.</p>
+</section>
+
+<section id="trouble">
+  <h2><span class="n">15.</span>Troubleshooting</h2>
+
+  <details open>
+    <summary><strong><code>nvidia-smi</code> not found or "NVIDIA-SMI has failed"</strong></summary>
+    <p>Kernel modules aren't loaded. Usually Secure Boot blocked the MOK enrollment. Reboot, enter BIOS, disable Secure Boot, reboot, then:</p>
+    <pre><code>sudo apt reinstall nvidia-driver-550   # use the version ubuntu-drivers recommended
+sudo reboot</code></pre>
+  </details>
+
+  <details>
+    <summary><strong>Open WebUI dropdown shows no models</strong></summary>
+    <p>The container cannot reach Ollama. From inside the container:</p>
+    <pre><code>docker exec -it open-webui curl http://host.docker.internal:11434/api/tags</code></pre>
+    <p>If that fails, either the <code>--add-host</code> flag was missing from <code>docker run</code> or Ollama is bound only to 127.0.0.1 in a way the gateway can't reach. Fix by either (a) recreating the container with the flag, or (b) switching to Option B in section 8 and setting <code>OLLAMA_BASE_URL=http://172.17.0.1:11434</code> (the default Docker bridge IP).</p>
+  </details>
+
+  <details>
+    <summary><strong>Generation runs but <code>nvidia-smi</code> shows 0% GPU</strong></summary>
+    <p>Ollama fell back to CPU. Check its logs:</p>
+    <pre><code>journalctl -u ollama -n 100 --no-pager | grep -iE "cuda|gpu|rocm"</code></pre>
+    <p>Common causes: driver version too old for the CUDA runtime Ollama ships, or the model is larger than your VRAM so it offloaded to CPU. Try a smaller quantization from <a href="#hardware">section 3</a>.</p>
+  </details>
+
+  <details>
+    <summary><strong>Port 3000 or 11434 already in use</strong></summary>
+    <pre><code>sudo ss -tulpn | grep -E "3000|11434"</code></pre>
+    <p>For 3000, re-run Open WebUI with a different host port, e.g. <code>-p 3001:8080</code>. For 11434, find the conflicting process and stop it - nothing else on the box should be using that port.</p>
+  </details>
+
+  <details>
+    <summary><strong>Docker: permission denied on /var/run/docker.sock</strong></summary>
+    <p>You didn't pick up the <code>docker</code> group. Run <code>newgrp docker</code>, or log out and back in.</p>
+  </details>
+
+  <details>
+    <summary><strong>Model download stalls or fails partway</strong></summary>
+    <p>Ollama resumes: just re-run <code>ollama pull &lt;tag&gt;</code>. If it persistently fails at a specific byte count, check free disk (<code>df -h /usr/share/ollama</code>) and your network.</p>
+  </details>
+
+  <details>
+    <summary><strong>Very slow first token, fast after that</strong></summary>
+    <p>Normal. Ollama lazy-loads the model on first request and keeps it resident for <code>OLLAMA_KEEP_ALIVE</code> (default 5 minutes). Increase via the systemd override:</p>
+    <pre><code>Environment="OLLAMA_KEEP_ALIVE=24h"</code></pre>
+  </details>
+</section>
+
+<section id="uninstall">
+  <h2><span class="n">16.</span>Full uninstall</h2>
+  <p>If you want to roll everything back:</p>
+  <pre><code># Open WebUI
+docker rm -f open-webui
+docker volume rm open-webui
+docker rmi ghcr.io/open-webui/open-webui:main
+
+# Ollama
+sudo systemctl stop ollama
+sudo systemctl disable ollama
+sudo rm /etc/systemd/system/ollama.service
+sudo rm $(which ollama)
+sudo rm -r /usr/share/ollama
+sudo userdel ollama
+sudo groupdel ollama
+
+# Docker (optional, only if you don't want it anymore)
+sudo apt purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nvidia-container-toolkit
+sudo rm -rf /var/lib/docker /var/lib/containerd</code></pre>
+  <p>NVIDIA drivers can stay; they're useful beyond this stack.</p>
+</section>
+
+<section id="sources">
+  <h2><span class="n">17.</span>Sources</h2>
+  <ul>
+    <li><a href="https://ollama.com/library/deepseek-coder-v2/tags">Ollama: deepseek-coder-v2 tag list</a> - authoritative sizes and quantizations.</li>
+    <li><a href="https://docs.ollama.com/linux">Ollama Linux install and systemd docs</a></li>
+    <li><a href="https://docs.openwebui.com/getting-started/quick-start/">Open WebUI quick start</a></li>
+    <li><a href="https://github.com/open-webui/open-webui">Open WebUI GitHub</a></li>
+    <li><a href="https://github.com/deepseek-ai/DeepSeek-Coder-V2">DeepSeek-Coder-V2 GitHub (model card and architecture)</a></li>
+    <li><a href="https://huggingface.co/deepseek-ai/DeepSeek-Coder-V2-Lite-Base">Hugging Face: DeepSeek-Coder-V2-Lite-Base</a></li>
+    <li><a href="https://docs.continue.dev/guides/ollama-guide">Continue.dev + Ollama guide</a></li>
+    <li><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html">NVIDIA Container Toolkit install guide</a></li>
+  </ul>
+</section>
+
+<footer>Generated for a clean Ubuntu Studio 24.04 setup. Dark/light theme follows your OS preference.</footer>
+</main>
+</div>
+</body>
+</html>
