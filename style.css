@@ -1,0 +1,38 @@
+body {
+  background-color: black;
+}
+
+.title-text {
+  text-align: center;
+  font-size: 2em;
+  font-weight: bold;
+  font-family: "Arial", georgia, serif;
+  background-color: rgb(45, 87, 146);
+  display: content;
+  text-shadow: 2px 2px 4px black;
+  color: white;
+}
+
+.banner {
+  text-align: center;
+  font-size: 1em;
+  background-color: rgb(45, 87, 146);
+  display: content;
+  padding: 3px;
+}
+
+.content {
+  text-align: center;
+  font-size: 1.5em;
+  background-color: rgb(45, 87, 146);
+  display: content;
+}
+
+.button {
+  background-color: rgb(5, 35, 76);
+  color: yellow;
+  padding: 10px 20px;
+  border: 2px solid white;
+  border-radius: 20px;
+  cursor: pointer;
+}
