@@ -1,222 +1,368 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Build a Dev Command Runner in Python (tkinter tutorial)</title>
-<style>
-  :root {
-    --bg: #fafafa;
-    --fg: #222;
-    --muted: #666;
-    --accent: #0a66c2;
-    --code-bg: #1e1e1e;
-    --code-fg: #e6e6e6;
-    --code-comment: #8aa9b8;
-    --code-keyword: #c084fc;
-    --code-string: #a3e635;
-    --callout-bg: #fff7d6;
-    --callout-border: #d4a017;
-    --warn-bg: #ffe6e6;
-    --warn-border: #cc3333;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 32px 24px 96px;
-    line-height: 1.55;
-  }
-  h1 { font-size: 2em; margin-top: 0; }
-  h2 { font-size: 1.5em; border-bottom: 2px solid #ddd; padding-bottom: 6px; margin-top: 48px; }
-  h3 { font-size: 1.15em; margin-top: 28px; color: var(--accent); }
-  p { margin: 12px 0; }
-  ul, ol { margin: 12px 0; padding-left: 28px; }
-  li { margin: 4px 0; }
-  pre {
-    background: var(--code-bg);
-    color: var(--code-fg);
-    padding: 14px 16px;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-family: Menlo, Consolas, monospace;
-    font-size: 13px;
-    line-height: 1.5;
-  }
-  code { font-family: Menlo, Consolas, monospace; font-size: 0.92em; }
-  p code, li code { background: #eee; padding: 1px 5px; border-radius: 3px; }
-  .callout {
-    background: var(--callout-bg);
-    border-left: 4px solid var(--callout-border);
-    padding: 10px 14px;
-    margin: 16px 0;
-    border-radius: 4px;
-  }
-  .warn {
-    background: var(--warn-bg);
-    border-left: 4px solid var(--warn-border);
-    padding: 10px 14px;
-    margin: 16px 0;
-    border-radius: 4px;
-  }
-  .toc {
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 12px 18px;
-    border-radius: 6px;
-  }
-  .toc ol { padding-left: 24px; }
-  kbd {
-    background: #eee;
-    border: 1px solid #ccc;
-    border-bottom-width: 2px;
-    border-radius: 3px;
-    padding: 1px 6px;
-    font-family: Menlo, Consolas, monospace;
-    font-size: 0.85em;
-  }
-  .ascii-diagram {
-    background: #1e1e1e;
-    color: #e6e6e6;
-    padding: 12px;
-    border-radius: 6px;
-    font-family: Menlo, Consolas, monospace;
-    font-size: 12px;
-    line-height: 1.3;
-    white-space: pre;
-    overflow-x: auto;
-  }
-  table { border-collapse: collapse; margin: 12px 0; }
-  th, td { border: 1px solid #ccc; padding: 6px 12px; text-align: left; }
-  th { background: #eee; }
-  .muted { color: var(--muted); font-size: 0.9em; }
-</style>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Build a Dev Command Runner in Python (tkinter tutorial)</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --fg: #222;
+        --muted: #666;
+        --accent: #0a66c2;
+        --code-bg: #1e1e1e;
+        --code-fg: #e6e6e6;
+        --code-comment: #8aa9b8;
+        --code-keyword: #c084fc;
+        --code-string: #a3e635;
+        --callout-bg: #fff7d6;
+        --callout-border: #d4a017;
+        --warn-bg: #ffe6e6;
+        --warn-border: #cc3333;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 32px 24px 96px;
+        line-height: 1.55;
+      }
+      h1 {
+        font-size: 2em;
+        margin-top: 0;
+      }
+      h2 {
+        font-size: 1.5em;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 6px;
+        margin-top: 48px;
+      }
+      h3 {
+        font-size: 1.15em;
+        margin-top: 28px;
+        color: var(--accent);
+      }
+      p {
+        margin: 12px 0;
+      }
+      ul,
+      ol {
+        margin: 12px 0;
+        padding-left: 28px;
+      }
+      li {
+        margin: 4px 0;
+      }
+      pre {
+        background: var(--code-bg);
+        color: var(--code-fg);
+        padding: 14px 16px;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-family: Menlo, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      code {
+        font-family: Menlo, Consolas, monospace;
+        font-size: 0.92em;
+      }
+      p code,
+      li code {
+        background: #eee;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .callout {
+        background: var(--callout-bg);
+        border-left: 4px solid var(--callout-border);
+        padding: 10px 14px;
+        margin: 16px 0;
+        border-radius: 4px;
+      }
+      .warn {
+        background: var(--warn-bg);
+        border-left: 4px solid var(--warn-border);
+        padding: 10px 14px;
+        margin: 16px 0;
+        border-radius: 4px;
+      }
+      .toc {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 12px 18px;
+        border-radius: 6px;
+      }
+      .toc ol {
+        padding-left: 24px;
+      }
+      kbd {
+        background: #eee;
+        border: 1px solid #ccc;
+        border-bottom-width: 2px;
+        border-radius: 3px;
+        padding: 1px 6px;
+        font-family: Menlo, Consolas, monospace;
+        font-size: 0.85em;
+      }
+      .ascii-diagram {
+        background: #1e1e1e;
+        color: #e6e6e6;
+        padding: 12px;
+        border-radius: 6px;
+        font-family: Menlo, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.3;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 12px 0;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        text-align: left;
+      }
+      th {
+        background: #eee;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Build a Dev Command Runner in Python</h1>
+    <p class="muted">
+      A step-by-step tutorial for Python beginners. We will build a small
+      desktop app that runs five common git and shell commands, with a graphical
+      user interface (GUI) made using <code>tkinter</code> (Python's built-in UI
+      library).
+    </p>
 
-<h1>Build a Dev Command Runner in Python</h1>
-<p class="muted">A step-by-step tutorial for Python beginners. We will build a small desktop app that runs five common git and shell commands, with a graphical user interface (GUI) made using <code>tkinter</code> (Python's built-in UI library).</p>
+    <div class="toc">
+      <strong>Contents</strong>
+      <ol>
+        <li><a href="#what">What you will build</a></li>
+        <li><a href="#tools">Tools you need</a></li>
+        <li><a href="#git">Part 1: The git and shell commands</a></li>
+        <li><a href="#python">Part 2: A focused Python primer</a></li>
+        <li><a href="#tkinter">Part 3: Meet tkinter</a></li>
+        <li><a href="#build">Part 4: Build the tool, piece by piece</a></li>
+        <li><a href="#run">Part 5: Run and test it</a></li>
+        <li><a href="#troubleshoot">Part 6: Troubleshooting</a></li>
+        <li><a href="#exercises">Exercises and next steps</a></li>
+      </ol>
+    </div>
 
-<div class="toc">
-  <strong>Contents</strong>
-  <ol>
-    <li><a href="#what">What you will build</a></li>
-    <li><a href="#tools">Tools you need</a></li>
-    <li><a href="#git">Part 1: The git and shell commands</a></li>
-    <li><a href="#python">Part 2: A focused Python primer</a></li>
-    <li><a href="#tkinter">Part 3: Meet tkinter</a></li>
-    <li><a href="#build">Part 4: Build the tool, piece by piece</a></li>
-    <li><a href="#run">Part 5: Run and test it</a></li>
-    <li><a href="#troubleshoot">Part 6: Troubleshooting</a></li>
-    <li><a href="#exercises">Exercises and next steps</a></li>
-  </ol>
-</div>
+    <h2 id="what">1. What you will build</h2>
+    <p>
+      A small desktop window with a dropdown that lets you pick one of five
+      commands, an optional input field for a search pattern, a working
+      directory chooser, and a Run button. The output of the command appears in
+      a scrollable text area below.
+    </p>
 
-<h2 id="what">1. What you will build</h2>
-<p>A small desktop window with a dropdown that lets you pick one of five commands, an optional input field for a search pattern, a working directory chooser, and a Run button. The output of the command appears in a scrollable text area below.</p>
+    <div class="ascii-diagram">
+      +---------------------------------------------------+ | Dev Command Runner
+      | +---------------------------------------------------+ | Command: [
+      Recent commits (last 20) v ] | | Argument: [ (disabled when not needed) ]
+      | | Working dir: [ /Users/you/code/myrepo ] | | [Browse] | | [Run] [Clear
+      output] | +---------------------------------------------------+ | $ git
+      log -n 20 --oneline | | (cwd: /Users/you/code/myrepo) | | | | 277f83b09
+      [PY-6315] Add Zerobounce limit | | 6e189dd39 [ST-1039] new polls
+      implementation | | ... |
+      +---------------------------------------------------+
+    </div>
 
-<div class="ascii-diagram">+---------------------------------------------------+
-| Dev Command Runner                                |
-+---------------------------------------------------+
-| Command:     [ Recent commits (last 20)      v ]  |
-| Argument:    [ (disabled when not needed)     ]  |
-| Working dir: [ /Users/you/code/myrepo         ]  |
-|                                       [Browse]   |
-| [Run]  [Clear output]                            |
-+---------------------------------------------------+
-| $ git log -n 20 --oneline                         |
-| (cwd: /Users/you/code/myrepo)                     |
-|                                                   |
-| 277f83b09 [PY-6315] Add Zerobounce limit          |
-| 6e189dd39 [ST-1039] new polls implementation      |
-| ...                                               |
-+---------------------------------------------------+</div>
+    <p>
+      The five commands the tool runs are the most reusable git and shell
+      commands you will reach for again and again when working in any codebase.
+    </p>
 
-<p>The five commands the tool runs are the most reusable git and shell commands you will reach for again and again when working in any codebase.</p>
+    <h2 id="tools">2. Tools you need</h2>
 
-<h2 id="tools">2. Tools you need</h2>
+    <h3>Python interpreter</h3>
+    <p>
+      You need Python 3.9 or newer. On macOS, this tutorial uses the python.org
+      installer build because it ships with a modern version of Tk (the toolkit
+      tkinter is built on top of). Apple's built-in Python 3.9 also works, but
+      Tk 8.5 there has visual rendering bugs.
+    </p>
 
-<h3>Python interpreter</h3>
-<p>You need Python 3.9 or newer. On macOS, this tutorial uses the python.org installer build because it ships with a modern version of Tk (the toolkit tkinter is built on top of). Apple's built-in Python 3.9 also works, but Tk 8.5 there has visual rendering bugs.</p>
+    <p>To check which Python you have, open Terminal and run:</p>
+    <pre><code>python3 --version</code></pre>
 
-<p>To check which Python you have, open Terminal and run:</p>
-<pre><code>python3 --version</code></pre>
+    <p>To check whether tkinter is available with that interpreter, run:</p>
+    <pre><code>python3 -c "import tkinter; print(tkinter.TkVersion)"</code></pre>
+    <p>
+      If you see a number like <code>8.6</code>, you are good to go. If you see
+      a <code>ModuleNotFoundError</code> instead, your Python build does not
+      include tkinter. See <a href="#troubleshoot">Part 6: Troubleshooting</a>.
+    </p>
 
-<p>To check whether tkinter is available with that interpreter, run:</p>
-<pre><code>python3 -c "import tkinter; print(tkinter.TkVersion)"</code></pre>
-<p>If you see a number like <code>8.6</code>, you are good to go. If you see a <code>ModuleNotFoundError</code> instead, your Python build does not include tkinter. See <a href="#troubleshoot">Part 6: Troubleshooting</a>.</p>
+    <h3>A text editor</h3>
+    <p>
+      Anything works: VS Code, Sublime, even TextEdit in plain-text mode. We
+      will write a single file.
+    </p>
 
-<h3>A text editor</h3>
-<p>Anything works: VS Code, Sublime, even TextEdit in plain-text mode. We will write a single file.</p>
+    <h3>A git repository</h3>
+    <p>
+      To actually try the tool you will need a git repo to run commands against.
+      Any project on your machine that is under version control is fine.
+    </p>
 
-<h3>A git repository</h3>
-<p>To actually try the tool you will need a git repo to run commands against. Any project on your machine that is under version control is fine.</p>
+    <h2 id="git">Part 1: The git and shell commands</h2>
+    <p>
+      Before writing code, let us understand the five commands the tool will
+      expose. These are commands you can also type by hand in Terminal; the tool
+      just gives them a button.
+    </p>
 
-<h2 id="git">Part 1: The git and shell commands</h2>
-<p>Before writing code, let us understand the five commands the tool will expose. These are commands you can also type by hand in Terminal; the tool just gives them a button.</p>
+    <h3>Command 1: <code>git log --oneline master..HEAD</code></h3>
+    <p>
+      Shows you the commits on your <em>current branch</em> that are not yet on
+      <code>master</code>. In other words: "what work have I done on this
+      branch?" Each commit appears as a single line, formatted as
+      <code>SHORTHASH commit message</code>.
+    </p>
+    <ul>
+      <li><code>git log</code> is git's command for listing commit history.</li>
+      <li><code>--oneline</code> compresses each commit into one line.</li>
+      <li>
+        <code>master..HEAD</code> means "commits reachable from
+        <code>HEAD</code> (where I am now) but not from <code>master</code>."
+        The two dots are the key; they are how git expresses "the difference
+        between."
+      </li>
+    </ul>
 
-<h3>Command 1: <code>git log --oneline master..HEAD</code></h3>
-<p>Shows you the commits on your <em>current branch</em> that are not yet on <code>master</code>. In other words: "what work have I done on this branch?" Each commit appears as a single line, formatted as <code>SHORTHASH commit message</code>.</p>
-<ul>
-  <li><code>git log</code> is git's command for listing commit history.</li>
-  <li><code>--oneline</code> compresses each commit into one line.</li>
-  <li><code>master..HEAD</code> means "commits reachable from <code>HEAD</code> (where I am now) but not from <code>master</code>." The two dots are the key; they are how git expresses "the difference between."</li>
-</ul>
+    <h3>Command 2: <code>git diff master...HEAD --stat</code></h3>
+    <p>
+      Shows you a list of every file that has changed on the current branch
+      versus master, and how many lines were added or removed in each. This is
+      great for a quick "what does this PR touch?" overview.
+    </p>
+    <ul>
+      <li>
+        <code>git diff</code> normally shows a line-by-line diff. With
+        <code>--stat</code>, it shows just a per-file summary instead.
+      </li>
+      <li>
+        <code>master...HEAD</code> (three dots, called the "symmetric
+        difference") means "everything that has diverged between master and
+        HEAD." It is the form most often used for branch-vs-main comparisons.
+      </li>
+    </ul>
+    <div class="callout">
+      <strong>Two dots vs three dots:</strong> <code>A..B</code> means commits
+      in B but not A. <code>A...B</code> means commits in either A or B but not
+      both. For <code>git log</code>, you usually want two dots. For
+      <code>git diff</code> against a branch, three dots is the conventional
+      choice.
+    </div>
 
-<h3>Command 2: <code>git diff master...HEAD --stat</code></h3>
-<p>Shows you a list of every file that has changed on the current branch versus master, and how many lines were added or removed in each. This is great for a quick "what does this PR touch?" overview.</p>
-<ul>
-  <li><code>git diff</code> normally shows a line-by-line diff. With <code>--stat</code>, it shows just a per-file summary instead.</li>
-  <li><code>master...HEAD</code> (three dots, called the "symmetric difference") means "everything that has diverged between master and HEAD." It is the form most often used for branch-vs-main comparisons.</li>
-</ul>
-<div class="callout">
-<strong>Two dots vs three dots:</strong> <code>A..B</code> means commits in B but not A. <code>A...B</code> means commits in either A or B but not both. For <code>git log</code>, you usually want two dots. For <code>git diff</code> against a branch, three dots is the conventional choice.
-</div>
+    <h3>
+      Command 3: <code>git log --all --oneline | grep -i -E -- 'PATTERN'</code>
+    </h3>
+    <p>
+      Searches every commit message in the entire repo for a keyword or regex.
+      Useful for finding "where did we touch ticket BT-542?" or "did anyone ever
+      commit a fix for that bug?"
+    </p>
+    <ul>
+      <li>
+        <code>git log --all</code> includes every branch, not just the current
+        one.
+      </li>
+      <li>
+        <code>|</code> is the shell <em>pipe</em>: it sends the output of the
+        left command into the input of the right command.
+      </li>
+      <li><code>grep</code> filters lines that match a pattern.</li>
+      <li><code>-i</code> means case-insensitive.</li>
+      <li>
+        <code>-E</code> enables extended regular expressions, so
+        <code>|</code> inside the pattern means "or" (e.g.
+        <code>BT-542|BT-566</code>).
+      </li>
+      <li>
+        <code>--</code> is a separator that tells grep "everything after this is
+        a pattern, not a flag." It prevents weird patterns starting with
+        <code>-</code> from being misinterpreted.
+      </li>
+    </ul>
 
-<h3>Command 3: <code>git log --all --oneline | grep -i -E -- 'PATTERN'</code></h3>
-<p>Searches every commit message in the entire repo for a keyword or regex. Useful for finding "where did we touch ticket BT-542?" or "did anyone ever commit a fix for that bug?"</p>
-<ul>
-  <li><code>git log --all</code> includes every branch, not just the current one.</li>
-  <li><code>|</code> is the shell <em>pipe</em>: it sends the output of the left command into the input of the right command.</li>
-  <li><code>grep</code> filters lines that match a pattern.</li>
-  <li><code>-i</code> means case-insensitive.</li>
-  <li><code>-E</code> enables extended regular expressions, so <code>|</code> inside the pattern means "or" (e.g. <code>BT-542|BT-566</code>).</li>
-  <li><code>--</code> is a separator that tells grep "everything after this is a pattern, not a flag." It prevents weird patterns starting with <code>-</code> from being misinterpreted.</li>
-</ul>
+    <h3>Command 4: <code>grep -rnE --exclude-dir=... -- 'PATTERN' .</code></h3>
+    <p>
+      Recursively searches every file under the current directory for a regex.
+      Like a poor man's "find usages" feature.
+    </p>
+    <ul>
+      <li><code>-r</code> means recursive (descend into subdirectories).</li>
+      <li>
+        <code>-n</code> prints line numbers next to each match (so you can jump
+        straight to the right place).
+      </li>
+      <li><code>-E</code> enables extended regex, same as before.</li>
+      <li>
+        <code>--exclude-dir=.git</code> and friends skip directories that are
+        huge and full of binary or generated files. Without these excludes, the
+        search reads pack files inside <code>.git</code> and can take minutes.
+      </li>
+      <li>
+        <code>.</code> at the end means "search starting from here." You could
+        replace it with any path.
+      </li>
+    </ul>
+    <div class="warn">
+      <strong>Why excludes matter:</strong> a plain
+      <code>grep -rn pattern .</code> on a real repo can spend most of its time
+      inside <code>.git/objects</code> or <code>node_modules</code>. The output
+      is unreadable and the search may even time out. The
+      <code>--exclude-dir</code> flags are not optional polish; they are what
+      makes the command actually usable.
+    </div>
 
-<h3>Command 4: <code>grep -rnE --exclude-dir=... -- 'PATTERN' .</code></h3>
-<p>Recursively searches every file under the current directory for a regex. Like a poor man's "find usages" feature.</p>
-<ul>
-  <li><code>-r</code> means recursive (descend into subdirectories).</li>
-  <li><code>-n</code> prints line numbers next to each match (so you can jump straight to the right place).</li>
-  <li><code>-E</code> enables extended regex, same as before.</li>
-  <li><code>--exclude-dir=.git</code> and friends skip directories that are huge and full of binary or generated files. Without these excludes, the search reads pack files inside <code>.git</code> and can take minutes.</li>
-  <li><code>.</code> at the end means "search starting from here." You could replace it with any path.</li>
-</ul>
-<div class="warn">
-<strong>Why excludes matter:</strong> a plain <code>grep -rn pattern .</code> on a real repo can spend most of its time inside <code>.git/objects</code> or <code>node_modules</code>. The output is unreadable and the search may even time out. The <code>--exclude-dir</code> flags are not optional polish; they are what makes the command actually usable.
-</div>
+    <h3>Command 5: <code>git log -n 20 --oneline</code></h3>
+    <p>
+      Shows the most recent 20 commits on your current branch.
+      <code>-n 20</code> caps the count. This is the "what was just done here?"
+      command for orienting yourself in an unfamiliar repo.
+    </p>
 
-<h3>Command 5: <code>git log -n 20 --oneline</code></h3>
-<p>Shows the most recent 20 commits on your current branch. <code>-n 20</code> caps the count. This is the "what was just done here?" command for orienting yourself in an unfamiliar repo.</p>
+    <h2 id="python">Part 2: A focused Python primer</h2>
+    <p>
+      You do not need to know all of Python to follow along, but it helps to
+      recognize a few patterns that show up in our code.
+    </p>
 
-<h2 id="python">Part 2: A focused Python primer</h2>
-<p>You do not need to know all of Python to follow along, but it helps to recognize a few patterns that show up in our code.</p>
-
-<h3>Variables, strings, and f-strings</h3>
-<pre><code>name = "Fran"
+    <h3>Variables, strings, and f-strings</h3>
+    <pre><code>name = "User"
 greeting = "Hello, " + name           # concatenation
 greeting = f"Hello, {name}"           # f-string (string interpolation)</code></pre>
 
-<h3>Lists and dictionaries</h3>
-<p>A <em>list</em> is an ordered sequence. A <em>dictionary</em> maps keys to values. Both are written with literal syntax:</p>
-<pre><code>numbers = [1, 2, 3, 4]
-person = {"name": "Fran", "role": "backend dev"}
-print(person["name"])   # "Fran"</code></pre>
+    <h3>Lists and dictionaries</h3>
+    <p>
+      A <em>list</em> is an ordered sequence. A <em>dictionary</em> maps keys to
+      values. Both are written with literal syntax:
+    </p>
+    <pre><code>numbers = [1, 2, 3, 4]
+person = {"name": "User", "role": "backend dev"}
+print(person["name"])   # "User"</code></pre>
 
-<p>In our tool, the five commands are stored in a list of dictionaries. Each dictionary describes one command:</p>
-<pre><code>COMMANDS = [
+    <p>
+      In our tool, the five commands are stored in a list of dictionaries. Each
+      dictionary describes one command:
+    </p>
+    <pre><code>COMMANDS = [
     {
         "label": "1. Commits on current branch (vs master)",
         "template": "git log --oneline master..HEAD",
@@ -225,15 +371,19 @@ print(person["name"])   # "Fran"</code></pre>
     # ...
 ]</code></pre>
 
-<h3>Functions and classes</h3>
-<p>A function is a reusable block of code:</p>
-<pre><code>def greet(name):
+    <h3>Functions and classes</h3>
+    <p>A function is a reusable block of code:</p>
+    <pre><code>def greet(name):
     return f"Hello, {name}"
 
-print(greet("Fran"))</code></pre>
+print(greet("User"))</code></pre>
 
-<p>A class is a blueprint for an <em>object</em> that bundles data and behavior together. We will define a <code>DevRunner</code> class for our app:</p>
-<pre><code>class DevRunner:
+    <p>
+      A class is a blueprint for an <em>object</em> that bundles data and
+      behavior together. We will define a <code>DevRunner</code> class for our
+      app:
+    </p>
+    <pre><code>class DevRunner:
     def __init__(self):
         self.title = "Hello"
 
@@ -242,70 +392,154 @@ print(greet("Fran"))</code></pre>
 
 app = DevRunner()
 app.show()   # prints "Hello"</code></pre>
-<ul>
-  <li><code>__init__</code> is the constructor; it runs automatically when you create an instance.</li>
-  <li><code>self</code> refers to the instance itself. It is how methods access the object's data.</li>
-</ul>
+    <ul>
+      <li>
+        <code>__init__</code> is the constructor; it runs automatically when you
+        create an instance.
+      </li>
+      <li>
+        <code>self</code> refers to the instance itself. It is how methods
+        access the object's data.
+      </li>
+    </ul>
 
-<h3>Importing modules</h3>
-<p>Python's standard library has thousands of modules. You bring them in with <code>import</code>:</p>
-<pre><code>import os                              # bring in the whole os module
+    <h3>Importing modules</h3>
+    <p>
+      Python's standard library has thousands of modules. You bring them in with
+      <code>import</code>:
+    </p>
+    <pre><code>import os                              # bring in the whole os module
 from tkinter import ttk                # bring in just one name from a module
 import tkinter as tk                   # bring it in with a shorter alias</code></pre>
 
-<h3>The <code>if __name__ == "__main__":</code> idiom</h3>
-<p>The bottom of nearly every Python script ends with this guard:</p>
-<pre><code>if __name__ == "__main__":
+    <h3>The <code>if __name__ == "__main__":</code> idiom</h3>
+    <p>The bottom of nearly every Python script ends with this guard:</p>
+    <pre><code>if __name__ == "__main__":
     DevRunner().mainloop()</code></pre>
-<p>This means "only run this code if the file is being executed directly, not if some other Python file imported it." It is a Python convention that lets a file be both a runnable program and an importable library.</p>
+    <p>
+      This means "only run this code if the file is being executed directly, not
+      if some other Python file imported it." It is a Python convention that
+      lets a file be both a runnable program and an importable library.
+    </p>
 
-<h2 id="tkinter">Part 3: Meet tkinter</h2>
-<p><strong>tkinter</strong> is Python's built-in module for making desktop GUIs. It is a thin wrapper around an older toolkit called Tk, which itself comes from the Tcl programming language. Tkinter ships with most Python installations, so you usually do not need to install anything extra.</p>
+    <h2 id="tkinter">Part 3: Meet tkinter</h2>
+    <p>
+      <strong>tkinter</strong> is Python's built-in module for making desktop
+      GUIs. It is a thin wrapper around an older toolkit called Tk, which itself
+      comes from the Tcl programming language. Tkinter ships with most Python
+      installations, so you usually do not need to install anything extra.
+    </p>
 
-<h3>The big picture</h3>
-<p>Every tkinter program follows the same shape:</p>
-<ol>
-  <li>Create a <em>root window</em> (the top-level window).</li>
-  <li>Create <em>widgets</em> (buttons, labels, text fields) and place them inside frames.</li>
-  <li>Wire up <em>callbacks</em> so the widgets react to clicks and typing.</li>
-  <li>Call <code>mainloop()</code>. This starts the event loop: tkinter waits for user input and dispatches events.</li>
-</ol>
+    <h3>The big picture</h3>
+    <p>Every tkinter program follows the same shape:</p>
+    <ol>
+      <li>Create a <em>root window</em> (the top-level window).</li>
+      <li>
+        Create <em>widgets</em> (buttons, labels, text fields) and place them
+        inside frames.
+      </li>
+      <li>
+        Wire up <em>callbacks</em> so the widgets react to clicks and typing.
+      </li>
+      <li>
+        Call <code>mainloop()</code>. This starts the event loop: tkinter waits
+        for user input and dispatches events.
+      </li>
+    </ol>
 
-<h3>tk vs ttk</h3>
-<p>You will see two flavors of widgets:</p>
-<ul>
-  <li><code>tk.Button</code>, <code>tk.Label</code> ... the original "classic" widgets.</li>
-  <li><code>ttk.Button</code>, <code>ttk.Label</code> ... "themed" widgets that look native on each operating system.</li>
-</ul>
-<p>For a modern look, prefer <code>ttk</code> wherever possible. Some widgets only exist in classic Tk (e.g. <code>tk.Text</code> and the multi-line scrolled text widget we use for output).</p>
+    <h3>tk vs ttk</h3>
+    <p>You will see two flavors of widgets:</p>
+    <ul>
+      <li>
+        <code>tk.Button</code>, <code>tk.Label</code> ... the original "classic"
+        widgets.
+      </li>
+      <li>
+        <code>ttk.Button</code>, <code>ttk.Label</code> ... "themed" widgets
+        that look native on each operating system.
+      </li>
+    </ul>
+    <p>
+      For a modern look, prefer <code>ttk</code> wherever possible. Some widgets
+      only exist in classic Tk (e.g. <code>tk.Text</code> and the multi-line
+      scrolled text widget we use for output).
+    </p>
 
-<h3>Geometry managers: pack vs grid</h3>
-<p>Tkinter has two main ways to arrange widgets inside a parent:</p>
-<ul>
-  <li><strong>pack</strong>: stack widgets along an edge (top, bottom, left, right). Easy for simple layouts.</li>
-  <li><strong>grid</strong>: arrange widgets in rows and columns, like a spreadsheet. Better for forms.</li>
-</ul>
-<p>You can mix them in the same program, but <em>not inside the same parent container</em>. We will use grid for the controls panel (rows of label+input pairs) and pack for the top-level layout.</p>
+    <h3>Geometry managers: pack vs grid</h3>
+    <p>Tkinter has two main ways to arrange widgets inside a parent:</p>
+    <ul>
+      <li>
+        <strong>pack</strong>: stack widgets along an edge (top, bottom, left,
+        right). Easy for simple layouts.
+      </li>
+      <li>
+        <strong>grid</strong>: arrange widgets in rows and columns, like a
+        spreadsheet. Better for forms.
+      </li>
+    </ul>
+    <p>
+      You can mix them in the same program, but
+      <em>not inside the same parent container</em>. We will use grid for the
+      controls panel (rows of label+input pairs) and pack for the top-level
+      layout.
+    </p>
 
-<h3>The widgets we use</h3>
-<table>
-<tr><th>Widget</th><th>Purpose</th></tr>
-<tr><td><code>tk.Tk</code></td><td>The root window.</td></tr>
-<tr><td><code>ttk.Frame</code></td><td>A container for grouping widgets. Used for layout.</td></tr>
-<tr><td><code>ttk.Label</code></td><td>Static text.</td></tr>
-<tr><td><code>ttk.Combobox</code></td><td>A dropdown of choices.</td></tr>
-<tr><td><code>ttk.Entry</code></td><td>A single-line text input.</td></tr>
-<tr><td><code>ttk.Button</code></td><td>A clickable button.</td></tr>
-<tr><td><code>tk.StringVar</code></td><td>A wrapper around a string that widgets can bind to. Updates the widget when the string changes, and vice versa.</td></tr>
-<tr><td><code>scrolledtext.ScrolledText</code></td><td>A multi-line text area with a built-in scrollbar.</td></tr>
-<tr><td><code>filedialog.askdirectory</code></td><td>Pops up a "choose folder" dialog.</td></tr>
-</table>
+    <h3>The widgets we use</h3>
+    <table>
+      <tr>
+        <th>Widget</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td><code>tk.Tk</code></td>
+        <td>The root window.</td>
+      </tr>
+      <tr>
+        <td><code>ttk.Frame</code></td>
+        <td>A container for grouping widgets. Used for layout.</td>
+      </tr>
+      <tr>
+        <td><code>ttk.Label</code></td>
+        <td>Static text.</td>
+      </tr>
+      <tr>
+        <td><code>ttk.Combobox</code></td>
+        <td>A dropdown of choices.</td>
+      </tr>
+      <tr>
+        <td><code>ttk.Entry</code></td>
+        <td>A single-line text input.</td>
+      </tr>
+      <tr>
+        <td><code>ttk.Button</code></td>
+        <td>A clickable button.</td>
+      </tr>
+      <tr>
+        <td><code>tk.StringVar</code></td>
+        <td>
+          A wrapper around a string that widgets can bind to. Updates the widget
+          when the string changes, and vice versa.
+        </td>
+      </tr>
+      <tr>
+        <td><code>scrolledtext.ScrolledText</code></td>
+        <td>A multi-line text area with a built-in scrollbar.</td>
+      </tr>
+      <tr>
+        <td><code>filedialog.askdirectory</code></td>
+        <td>Pops up a "choose folder" dialog.</td>
+      </tr>
+    </table>
 
-<h2 id="build">Part 4: Build the tool, piece by piece</h2>
-<p>Now we put it all together. The full file is about 160 lines. We will introduce it in chunks. By the end of this section you will have the entire program.</p>
+    <h2 id="build">Part 4: Build the tool, piece by piece</h2>
+    <p>
+      Now we put it all together. The full file is about 160 lines. We will
+      introduce it in chunks. By the end of this section you will have the
+      entire program.
+    </p>
 
-<h3>Step 4.1: The shebang and imports</h3>
-<pre><code>#!/Library/Frameworks/Python.framework/Versions/Current/bin/python3
+    <h3>Step 4.1: The shebang and imports</h3>
+    <pre><code>#!/Library/Frameworks/Python.framework/Versions/Current/bin/python3
 """Dev Command Runner: tkinter UI to run common git/exploration commands."""
 
 import os
@@ -318,18 +552,39 @@ import threading
 import tkinter as tk
 from tkinter import ttk, scrolledtext, filedialog</code></pre>
 
-<p>Walking through this:</p>
-<ul>
-  <li>The <code>#!</code> line at the very top is a "shebang." If you make the file executable, the shell will use this interpreter to run it. We point at the python.org Python because it has a modern Tk.</li>
-  <li>The triple-quoted string just below the shebang is a <em>module docstring</em>: a description of what this file does.</li>
-  <li><code>os.environ.setdefault("TK_SILENCE_DEPRECATION", "1")</code> sets an environment variable <em>before</em> we import tkinter. On macOS, Apple's old Tk 8.5 prints a deprecation warning unless this is set. We do this defensively even though our preferred Python uses Tk 8.6.</li>
-  <li><code>shlex</code> safely escapes user input for inclusion in shell commands.</li>
-  <li><code>subprocess</code> runs other programs (like git or grep) and captures their output.</li>
-  <li><code>threading</code> lets us run a slow subprocess on a background thread so the UI does not freeze.</li>
-</ul>
+    <p>Walking through this:</p>
+    <ul>
+      <li>
+        The <code>#!</code> line at the very top is a "shebang." If you make the
+        file executable, the shell will use this interpreter to run it. We point
+        at the python.org Python because it has a modern Tk.
+      </li>
+      <li>
+        The triple-quoted string just below the shebang is a
+        <em>module docstring</em>: a description of what this file does.
+      </li>
+      <li>
+        <code>os.environ.setdefault("TK_SILENCE_DEPRECATION", "1")</code> sets
+        an environment variable <em>before</em> we import tkinter. On macOS,
+        Apple's old Tk 8.5 prints a deprecation warning unless this is set. We
+        do this defensively even though our preferred Python uses Tk 8.6.
+      </li>
+      <li>
+        <code>shlex</code> safely escapes user input for inclusion in shell
+        commands.
+      </li>
+      <li>
+        <code>subprocess</code> runs other programs (like git or grep) and
+        captures their output.
+      </li>
+      <li>
+        <code>threading</code> lets us run a slow subprocess on a background
+        thread so the UI does not freeze.
+      </li>
+    </ul>
 
-<h3>Step 4.2: The list of commands</h3>
-<pre><code>COMMANDS = [
+    <h3>Step 4.2: The list of commands</h3>
+    <pre><code>COMMANDS = [
     {
         "label": "1. Commits on current branch (vs master)",
         "template": "git log --oneline master..HEAD",
@@ -365,20 +620,37 @@ from tkinter import ttk, scrolledtext, filedialog</code></pre>
 ]
 
 TIMEOUT_SECONDS = 60</code></pre>
-<p><strong>Why a list of dictionaries?</strong> It separates <em>data</em> from <em>code</em>. To add a sixth command later, you only edit this list. None of the UI code changes. This is one of the most useful patterns in software: keep the things that change (the command list) separate from the things that do not (the UI logic).</p>
-<p>The <code>{arg}</code> placeholder is a marker we will replace at runtime with the user's input. <code>arg_label</code> being <code>None</code> means "this command takes no argument."</p>
+    <p>
+      <strong>Why a list of dictionaries?</strong> It separates
+      <em>data</em> from <em>code</em>. To add a sixth command later, you only
+      edit this list. None of the UI code changes. This is one of the most
+      useful patterns in software: keep the things that change (the command
+      list) separate from the things that do not (the UI logic).
+    </p>
+    <p>
+      The <code>{arg}</code> placeholder is a marker we will replace at runtime
+      with the user's input. <code>arg_label</code> being
+      <code>None</code> means "this command takes no argument."
+    </p>
 
-<h3>Step 4.3: The class skeleton</h3>
-<pre><code>class DevRunner(tk.Tk):
+    <h3>Step 4.3: The class skeleton</h3>
+    <pre><code>class DevRunner(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Dev Command Runner")
         self.geometry("900x600")
         self._build_ui()</code></pre>
-<p>Notice that <code>DevRunner</code> <em>inherits</em> from <code>tk.Tk</code>. That means a <code>DevRunner</code> instance <em>is</em> a Tk root window. <code>super().__init__()</code> calls the parent's constructor first, which sets up all the Tk machinery. Then we set a window title and a starting size, and call our own helper to build the widgets.</p>
+    <p>
+      Notice that <code>DevRunner</code> <em>inherits</em> from
+      <code>tk.Tk</code>. That means a <code>DevRunner</code> instance
+      <em>is</em> a Tk root window. <code>super().__init__()</code> calls the
+      parent's constructor first, which sets up all the Tk machinery. Then we
+      set a window title and a starting size, and call our own helper to build
+      the widgets.
+    </p>
 
-<h3>Step 4.4: Building the widgets</h3>
-<pre><code>def _build_ui(self):
+    <h3>Step 4.4: Building the widgets</h3>
+    <pre><code>def _build_ui(self):
     top = ttk.Frame(self, padding=10)
     top.pack(fill=tk.X)
 
@@ -395,21 +667,56 @@ TIMEOUT_SECONDS = 60</code></pre>
     self.command_box.current(0)
     self.command_box.bind("&lt;&lt;ComboboxSelected&gt;&gt;", self._on_command_change)</code></pre>
 
-<p>What is happening:</p>
-<ul>
-  <li>We create a <code>ttk.Frame</code> as a container for the controls and pack it at the top of the window, stretching horizontally (<code>fill=tk.X</code>).</li>
-  <li>Inside the frame we use <code>grid</code> to arrange labels and inputs in rows.</li>
-  <li><code>tk.StringVar()</code> creates a string "variable" that the combobox can both read from and write to. We never actually use <code>command_var</code> directly here, but tkinter requires a textvariable for combobox state.</li>
-  <li><code>values=[c["label"] for c in COMMANDS]</code> is a <em>list comprehension</em>. It builds the list of dropdown options by reading the <code>label</code> field from every command dictionary.</li>
-  <li><code>state="readonly"</code> prevents the user from typing free text into the dropdown.</li>
-  <li><code>self.command_box.current(0)</code> selects the first item by default.</li>
-  <li><code>bind("&lt;&lt;ComboboxSelected&gt;&gt;", callback)</code> wires up a function to run whenever the user changes the dropdown selection. The double angle brackets denote a "virtual event." We will define <code>_on_command_change</code> shortly.</li>
-</ul>
+    <p>What is happening:</p>
+    <ul>
+      <li>
+        We create a <code>ttk.Frame</code> as a container for the controls and
+        pack it at the top of the window, stretching horizontally
+        (<code>fill=tk.X</code>).
+      </li>
+      <li>
+        Inside the frame we use <code>grid</code> to arrange labels and inputs
+        in rows.
+      </li>
+      <li>
+        <code>tk.StringVar()</code> creates a string "variable" that the
+        combobox can both read from and write to. We never actually use
+        <code>command_var</code> directly here, but tkinter requires a
+        textvariable for combobox state.
+      </li>
+      <li>
+        <code>values=[c["label"] for c in COMMANDS]</code> is a
+        <em>list comprehension</em>. It builds the list of dropdown options by
+        reading the <code>label</code> field from every command dictionary.
+      </li>
+      <li>
+        <code>state="readonly"</code> prevents the user from typing free text
+        into the dropdown.
+      </li>
+      <li>
+        <code>self.command_box.current(0)</code> selects the first item by
+        default.
+      </li>
+      <li>
+        <code>bind("&lt;&lt;ComboboxSelected&gt;&gt;", callback)</code> wires up
+        a function to run whenever the user changes the dropdown selection. The
+        double angle brackets denote a "virtual event." We will define
+        <code>_on_command_change</code> shortly.
+      </li>
+    </ul>
 
-<p>The rest of <code>_build_ui</code> follows the same pattern for the argument entry, working directory entry with a Browse button, and the Run/Clear buttons. We will not retype it all here; refer to the full source.</p>
+    <p>
+      The rest of <code>_build_ui</code> follows the same pattern for the
+      argument entry, working directory entry with a Browse button, and the
+      Run/Clear buttons. We will not retype it all here; refer to the full
+      source.
+    </p>
 
-<p>The output area uses <code>scrolledtext.ScrolledText</code>, which is a multi-line text widget with a vertical scrollbar built in:</p>
-<pre><code>self.output = scrolledtext.ScrolledText(
+    <p>
+      The output area uses <code>scrolledtext.ScrolledText</code>, which is a
+      multi-line text widget with a vertical scrollbar built in:
+    </p>
+    <pre><code>self.output = scrolledtext.ScrolledText(
     self, wrap=tk.NONE, font=("Menlo", 11),
     background="#1e1e1e", foreground="#e6e6e6",
     insertbackground="#e6e6e6",
@@ -418,13 +725,20 @@ self.output.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
 self.output.tag_configure("cmd", foreground="#7fd3ff")
 self.output.tag_configure("err", foreground="#ff8a8a")
 self.output.tag_configure("meta", foreground="#a0a0a0")</code></pre>
-<ul>
-  <li><code>fill=tk.BOTH, expand=True</code> says "stretch this to fill all remaining space, both horizontally and vertically."</li>
-  <li><code>tag_configure</code> defines named text styles. When we insert text we can pass a tag name to apply that style. We use it to color the command line in cyan, errors in red, and metadata in gray.</li>
-</ul>
+    <ul>
+      <li>
+        <code>fill=tk.BOTH, expand=True</code> says "stretch this to fill all
+        remaining space, both horizontally and vertically."
+      </li>
+      <li>
+        <code>tag_configure</code> defines named text styles. When we insert
+        text we can pass a tag name to apply that style. We use it to color the
+        command line in cyan, errors in red, and metadata in gray.
+      </li>
+    </ul>
 
-<h3>Step 4.5: Reacting to dropdown changes</h3>
-<pre><code>def _on_command_change(self, *_):
+    <h3>Step 4.5: Reacting to dropdown changes</h3>
+    <pre><code>def _on_command_change(self, *_):
     cmd = self._selected_command()
     if cmd["arg_label"]:
         self.arg_label.configure(text=cmd["arg_label"])
@@ -433,11 +747,20 @@ self.output.tag_configure("meta", foreground="#a0a0a0")</code></pre>
         self.arg_label.configure(text="(no argument)")
         self.arg_var.set("")
         self.arg_entry.configure(state="disabled")</code></pre>
-<p>When the user picks a different command, we either show the argument hint and enable the entry, or hide the hint and disable the entry. This makes the UI self-explaining: you only see the input field when you actually need it.</p>
-<p>The <code>*_</code> in the parameter list is a Python idiom meaning "accept any extra positional arguments and ignore them." Tkinter passes an event object to the callback, but we do not need it.</p>
+    <p>
+      When the user picks a different command, we either show the argument hint
+      and enable the entry, or hide the hint and disable the entry. This makes
+      the UI self-explaining: you only see the input field when you actually
+      need it.
+    </p>
+    <p>
+      The <code>*_</code> in the parameter list is a Python idiom meaning
+      "accept any extra positional arguments and ignore them." Tkinter passes an
+      event object to the callback, but we do not need it.
+    </p>
 
-<h3>Step 4.6: Running the command (the most important method)</h3>
-<pre><code>def run_command(self):
+    <h3>Step 4.6: Running the command (the most important method)</h3>
+    <pre><code>def run_command(self):
     cmd = self._selected_command()
     template = cmd["template"]
     if "{arg}" in template:
@@ -460,25 +783,48 @@ self.output.tag_configure("meta", foreground="#a0a0a0")</code></pre>
     self.run_btn.configure(state="disabled")
     thread = threading.Thread(target=self._run_in_thread, args=(shell_cmd, cwd), daemon=True)
     thread.start()</code></pre>
-<p>This function does several important things:</p>
-<ol>
-  <li>Looks up the selected command and its template.</li>
-  <li>If the template needs an argument, reads the argument field, validates it is non-empty, and substitutes it into the template using <code>shlex.quote</code>.</li>
-  <li>Validates the working directory exists.</li>
-  <li>Echoes the rendered command into the output area so the user can see exactly what is about to run.</li>
-  <li>Disables the Run button to prevent double-runs, and starts the actual subprocess on a background thread.</li>
-</ol>
+    <p>This function does several important things:</p>
+    <ol>
+      <li>Looks up the selected command and its template.</li>
+      <li>
+        If the template needs an argument, reads the argument field, validates
+        it is non-empty, and substitutes it into the template using
+        <code>shlex.quote</code>.
+      </li>
+      <li>Validates the working directory exists.</li>
+      <li>
+        Echoes the rendered command into the output area so the user can see
+        exactly what is about to run.
+      </li>
+      <li>
+        Disables the Run button to prevent double-runs, and starts the actual
+        subprocess on a background thread.
+      </li>
+    </ol>
 
-<div class="callout">
-<strong>Why <code>shlex.quote</code>?</strong> If we just pasted the user's text into the command, an input like <code>foo; rm -rf ~</code> would run <code>rm -rf ~</code> as a separate command. <code>shlex.quote</code> wraps the input in single quotes and escapes any embedded quotes, so the shell treats the whole thing as one literal argument. This is called <em>shell injection</em> defense and it is a habit worth forming for any tool that builds shell strings.
-</div>
+    <div class="callout">
+      <strong>Why <code>shlex.quote</code>?</strong> If we just pasted the
+      user's text into the command, an input like
+      <code>foo; rm -rf ~</code> would run <code>rm -rf ~</code> as a separate
+      command. <code>shlex.quote</code> wraps the input in single quotes and
+      escapes any embedded quotes, so the shell treats the whole thing as one
+      literal argument. This is called <em>shell injection</em> defense and it
+      is a habit worth forming for any tool that builds shell strings.
+    </div>
 
-<div class="callout">
-<strong>Why a thread?</strong> tkinter's <code>mainloop()</code> runs the UI on a single thread. If we call <code>subprocess.run</code> directly from a button click, the UI freezes for the whole duration, and macOS shows the spinning beach ball. By running the subprocess in a separate thread, the UI stays responsive. We have to be careful, though: tkinter widgets must only be touched from the main thread. We use <code>self.after(0, fn)</code> to schedule UI updates back on the main thread.
-</div>
+    <div class="callout">
+      <strong>Why a thread?</strong> tkinter's <code>mainloop()</code> runs the
+      UI on a single thread. If we call <code>subprocess.run</code> directly
+      from a button click, the UI freezes for the whole duration, and macOS
+      shows the spinning beach ball. By running the subprocess in a separate
+      thread, the UI stays responsive. We have to be careful, though: tkinter
+      widgets must only be touched from the main thread. We use
+      <code>self.after(0, fn)</code> to schedule UI updates back on the main
+      thread.
+    </div>
 
-<h3>Step 4.7: The background worker</h3>
-<pre><code>def _run_in_thread(self, shell_cmd, cwd):
+    <h3>Step 4.7: The background worker</h3>
+    <pre><code>def _run_in_thread(self, shell_cmd, cwd):
     try:
         result = subprocess.run(
             shell_cmd,
@@ -493,17 +839,34 @@ self.output.tag_configure("meta", foreground="#a0a0a0")</code></pre>
         self.after(0, self._render_timeout)
     except Exception as exc:
         self.after(0, self._render_error, exc)</code></pre>
-<p>Key things:</p>
-<ul>
-  <li><code>shell=True</code> tells subprocess to run the string through a shell (so pipes like <code>|</code> work). Our use of <code>shlex.quote</code> earlier is what makes this safe.</li>
-  <li><code>capture_output=True</code> means "collect what the program prints instead of letting it leak to the terminal." We then put it in our text widget.</li>
-  <li><code>text=True</code> decodes the output as a string instead of raw bytes.</li>
-  <li><code>timeout=60</code> kills the subprocess if it takes too long.</li>
-  <li><code>self.after(0, fn, *args)</code> schedules <code>fn(*args)</code> to run on the main thread "as soon as possible." This is the bridge from a worker thread back to the UI.</li>
-</ul>
+    <p>Key things:</p>
+    <ul>
+      <li>
+        <code>shell=True</code> tells subprocess to run the string through a
+        shell (so pipes like <code>|</code> work). Our use of
+        <code>shlex.quote</code> earlier is what makes this safe.
+      </li>
+      <li>
+        <code>capture_output=True</code> means "collect what the program prints
+        instead of letting it leak to the terminal." We then put it in our text
+        widget.
+      </li>
+      <li>
+        <code>text=True</code> decodes the output as a string instead of raw
+        bytes.
+      </li>
+      <li>
+        <code>timeout=60</code> kills the subprocess if it takes too long.
+      </li>
+      <li>
+        <code>self.after(0, fn, *args)</code> schedules
+        <code>fn(*args)</code> to run on the main thread "as soon as possible."
+        This is the bridge from a worker thread back to the UI.
+      </li>
+    </ul>
 
-<h3>Step 4.8: Rendering results back to the UI</h3>
-<pre><code>def _render_result(self, result):
+    <h3>Step 4.8: Rendering results back to the UI</h3>
+    <pre><code>def _render_result(self, result):
     if result.stdout:
         self._write(result.stdout)
     if result.stderr:
@@ -517,61 +880,146 @@ def _write(self, text, tag=None):
     else:
         self.output.insert(tk.END, text)
     self.output.see(tk.END)</code></pre>
-<p>The <code>_write</code> helper appends text to the output widget, optionally with a color tag, and scrolls to the bottom so the newest content is always visible.</p>
+    <p>
+      The <code>_write</code> helper appends text to the output widget,
+      optionally with a color tag, and scrolls to the bottom so the newest
+      content is always visible.
+    </p>
 
-<h3>Step 4.9: The entry point</h3>
-<pre><code>if __name__ == "__main__":
+    <h3>Step 4.9: The entry point</h3>
+    <pre><code>if __name__ == "__main__":
     DevRunner().mainloop()</code></pre>
-<p>This single line creates a <code>DevRunner</code> instance and starts the tkinter event loop. <code>mainloop()</code> blocks until the user closes the window.</p>
+    <p>
+      This single line creates a <code>DevRunner</code> instance and starts the
+      tkinter event loop. <code>mainloop()</code> blocks until the user closes
+      the window.
+    </p>
 
-<h2 id="run">Part 5: Run and test it</h2>
+    <h2 id="run">Part 5: Run and test it</h2>
 
-<p>Save the file as <code>dev_runner.py</code> in your home directory. Then in Terminal:</p>
+    <p>
+      Save the file as <code>dev_runner.py</code> in your home directory. Then
+      in Terminal:
+    </p>
 
-<pre><code>/Library/Frameworks/Python.framework/Versions/Current/bin/python3 ~/dev_runner.py</code></pre>
+    <pre><code>/Library/Frameworks/Python.framework/Versions/Current/bin/python3 ~/dev_runner.py</code></pre>
 
-<p>If you also did <code>chmod +x ~/dev_runner.py</code>, the shebang lets you run it directly:</p>
-<pre><code>~/dev_runner.py</code></pre>
+    <p>
+      If you also did <code>chmod +x ~/dev_runner.py</code>, the shebang lets
+      you run it directly:
+    </p>
+    <pre><code>~/dev_runner.py</code></pre>
 
-<p><strong>First test:</strong> select "5. Recent commits (last 20)" and click Run. You should see 20 commit lines in the output. This requires no argument and works in any git repo, so it is the quickest sanity check.</p>
+    <p>
+      <strong>First test:</strong> select "5. Recent commits (last 20)" and
+      click Run. You should see 20 commit lines in the output. This requires no
+      argument and works in any git repo, so it is the quickest sanity check.
+    </p>
 
-<p><strong>Second test:</strong> select "4. Recursive grep for pattern", type a string you know exists in your code (a function name, a class), and click Run. You should see file paths with line numbers.</p>
+    <p>
+      <strong>Second test:</strong> select "4. Recursive grep for pattern", type
+      a string you know exists in your code (a function name, a class), and
+      click Run. You should see file paths with line numbers.
+    </p>
 
-<p><strong>Third test:</strong> use the Browse button to switch to a different repo on your machine and re-run command 5. The same button should now show that repo's commits.</p>
+    <p>
+      <strong>Third test:</strong> use the Browse button to switch to a
+      different repo on your machine and re-run command 5. The same button
+      should now show that repo's commits.
+    </p>
 
-<h2 id="troubleshoot">Part 6: Troubleshooting</h2>
+    <h2 id="troubleshoot">Part 6: Troubleshooting</h2>
 
-<h3>"ModuleNotFoundError: No module named '_tkinter'"</h3>
-<p>Your Python build does not include tkinter. This is common with Homebrew's Python. Fix options:</p>
-<ul>
-  <li><strong>Best:</strong> install Python from <a href="https://www.python.org/downloads/">python.org</a>. The installer bundles a working Tk 8.6.</li>
-  <li><strong>Alternative on macOS:</strong> use <code>/usr/bin/python3</code> (Apple's 3.9 build), which has Tk but is older and shows a deprecation warning.</li>
-  <li><strong>Homebrew users:</strong> <code>brew install python-tk</code> sometimes works, but it is fiddly.</li>
-</ul>
+    <h3>"ModuleNotFoundError: No module named '_tkinter'"</h3>
+    <p>
+      Your Python build does not include tkinter. This is common with Homebrew's
+      Python. Fix options:
+    </p>
+    <ul>
+      <li>
+        <strong>Best:</strong> install Python from
+        <a href="https://www.python.org/downloads/">python.org</a>. The
+        installer bundles a working Tk 8.6.
+      </li>
+      <li>
+        <strong>Alternative on macOS:</strong> use
+        <code>/usr/bin/python3</code> (Apple's 3.9 build), which has Tk but is
+        older and shows a deprecation warning.
+      </li>
+      <li>
+        <strong>Homebrew users:</strong>
+        <code>brew install python-tk</code> sometimes works, but it is fiddly.
+      </li>
+    </ul>
 
-<h3>"DEPRECATION WARNING: The system version of Tk is deprecated"</h3>
-<p>This appears when you run under Apple's Python 3.9 + Tk 8.5. To suppress the warning, set <code>TK_SILENCE_DEPRECATION=1</code>. To actually fix the underlying issue (blank windows, ugly widgets), switch to a Python that ships with Tk 8.6.</p>
+    <h3>"DEPRECATION WARNING: The system version of Tk is deprecated"</h3>
+    <p>
+      This appears when you run under Apple's Python 3.9 + Tk 8.5. To suppress
+      the warning, set <code>TK_SILENCE_DEPRECATION=1</code>. To actually fix
+      the underlying issue (blank windows, ugly widgets), switch to a Python
+      that ships with Tk 8.6.
+    </p>
 
-<h3>The window appears empty</h3>
-<p>Almost always Tk 8.5 on macOS. Switch interpreters to a Tk 8.6 build (python.org installer).</p>
+    <h3>The window appears empty</h3>
+    <p>
+      Almost always Tk 8.5 on macOS. Switch interpreters to a Tk 8.6 build
+      (python.org installer).
+    </p>
 
-<h3>Command 4 hangs or times out</h3>
-<p>You may be running it from a directory other than the repo. Or there is an unusually large directory not in the exclude list. Either change the working directory in the UI, or add another <code>--exclude-dir</code> to the template.</p>
+    <h3>Command 4 hangs or times out</h3>
+    <p>
+      You may be running it from a directory other than the repo. Or there is an
+      unusually large directory not in the exclude list. Either change the
+      working directory in the UI, or add another <code>--exclude-dir</code> to
+      the template.
+    </p>
 
-<h3>Command 1 or 2 returns nothing</h3>
-<p>You may be on a branch that has no commits beyond <code>master</code>, or your repo's main branch is named something else (<code>main</code>, not <code>master</code>). Edit the template strings in <code>COMMANDS</code> to suit your repo.</p>
+    <h3>Command 1 or 2 returns nothing</h3>
+    <p>
+      You may be on a branch that has no commits beyond <code>master</code>, or
+      your repo's main branch is named something else (<code>main</code>, not
+      <code>master</code>). Edit the template strings in
+      <code>COMMANDS</code> to suit your repo.
+    </p>
 
-<h2 id="exercises">Exercises and next steps</h2>
-<p>If you want to keep going:</p>
-<ol>
-  <li><strong>Add a sixth command:</strong> for example "show staged changes" (<code>git diff --cached --stat</code>). Just append a new dictionary to <code>COMMANDS</code>; the UI updates automatically.</li>
-  <li><strong>Make the main branch configurable:</strong> add a "Main branch" entry near the working directory and substitute it into commands 1 and 2. Hint: use the same <code>{arg}</code>-style placeholder mechanism.</li>
-  <li><strong>Save output to a file:</strong> add a "Save output..." button that opens <code>filedialog.asksaveasfilename</code> and writes the contents of the text widget.</li>
-  <li><strong>Stream output line by line:</strong> instead of <code>subprocess.run</code> with <code>capture_output=True</code>, use <code>subprocess.Popen</code> and read <code>stdout</code> a line at a time. This is more advanced but gives a live "tail" feel for slow commands.</li>
-  <li><strong>Replace grep with ripgrep:</strong> if you have <code>rg</code> installed, swap the template in command 4. ripgrep already excludes <code>.git</code> and respects <code>.gitignore</code> by default.</li>
-</ol>
+    <h2 id="exercises">Exercises and next steps</h2>
+    <p>If you want to keep going:</p>
+    <ol>
+      <li>
+        <strong>Add a sixth command:</strong> for example "show staged changes"
+        (<code>git diff --cached --stat</code>). Just append a new dictionary to
+        <code>COMMANDS</code>; the UI updates automatically.
+      </li>
+      <li>
+        <strong>Make the main branch configurable:</strong> add a "Main branch"
+        entry near the working directory and substitute it into commands 1 and
+        2. Hint: use the same <code>{arg}</code>-style placeholder mechanism.
+      </li>
+      <li>
+        <strong>Save output to a file:</strong> add a "Save output..." button
+        that opens <code>filedialog.asksaveasfilename</code> and writes the
+        contents of the text widget.
+      </li>
+      <li>
+        <strong>Stream output line by line:</strong> instead of
+        <code>subprocess.run</code> with <code>capture_output=True</code>, use
+        <code>subprocess.Popen</code> and read <code>stdout</code> a line at a
+        time. This is more advanced but gives a live "tail" feel for slow
+        commands.
+      </li>
+      <li>
+        <strong>Replace grep with ripgrep:</strong> if you have
+        <code>rg</code> installed, swap the template in command 4. ripgrep
+        already excludes <code>.git</code> and respects
+        <code>.gitignore</code> by default.
+      </li>
+    </ol>
 
-<p class="muted">You now have a working tkinter app and a feel for how Python wraps shell commands behind a UI. The same pattern (a list of templates plus a small UI to run them) scales surprisingly far: the same architecture works for build systems, deploy dashboards, and admin tools at real companies.</p>
-
-</body>
+    <p class="muted">
+      You now have a working tkinter app and a feel for how Python wraps shell
+      commands behind a UI. The same pattern (a list of templates plus a small
+      UI to run them) scales surprisingly far: the same architecture works for
+      build systems, deploy dashboards, and admin tools at real companies.
+    </p>
+  </body>
 </html>
